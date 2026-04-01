@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(pkill -f \"vite --host\")",
+      "Bash(netstat -aon)",
+      "Bash(taskkill //PID 28992 //F)",
+      "Bash(node -e \"const tsl = require\\(''''three/tsl''''\\); console.log\\(Object.keys\\(tsl\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''''bloom''''\\) || k.toLowerCase\\(\\).includes\\(''''pass''''\\)\\).join\\(''''\\\\n''''\\)\\)\")",
+      "Bash(node -e \"const tsl = require\\(''three/tsl''\\); console.log\\(Object.keys\\(tsl\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''bloom''\\) || k.toLowerCase\\(\\).includes\\(''glow''\\) || k.toLowerCase\\(\\).includes\\(''unrealbloom''\\)\\).join\\(''\\\\n''\\)\\)\")",
+      "Bash(node -e \"const t = require\\(''three/webgpu''\\); console.log\\(Object.keys\\(t\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''bloom''\\) || k.toLowerCase\\(\\).includes\\(''postprocess''\\) || k.toLowerCase\\(\\).includes\\(''unrealbloom''\\)\\).join\\(''\\\\n''\\)\\)\")",
+      "Bash(node -e \"const tsl = require\\(''three/tsl''\\); const keys = Object.keys\\(tsl\\); console.log\\(keys.filter\\(k => k.includes\\(''ao''\\) || k.includes\\(''Ao''\\) || k.includes\\(''AO''\\) || k.includes\\(''fxaa''\\) || k.includes\\(''Fxaa''\\) || k.includes\\(''dof''\\) || k.includes\\(''Dof''\\) || k.includes\\(''DOF''\\) || k.includes\\(''ssr''\\) || k.includes\\(''denoise''\\) || k.includes\\(''motion''\\) || k.includes\\(''outline''\\)\\).join\\(''\\\\n''\\)\\)\")",
+      "Bash(node -e \"const tsl = require\\(''three/tsl''\\); const keys = Object.keys\\(tsl\\); console.log\\(keys.filter\\(k => /color|Color|gauss|Gauss|blur|Blur|vignette|Vignette|sepia|invert|tone|Tone|gamma|exposure|luminance|threshold/.test\\(k\\)\\).join\\(''\\\\n''\\)\\)\")",
+      "Bash(node -e \"const tsl = require\\(''three/tsl''\\); [''positionLocal'',''uniform'',''sin'',''cos'',''vec3'',''time'',''normalLocal'',''mul'',''add'',''float''].forEach\\(k => console.log\\(k, k in tsl ? ''OK'' : ''MISSING''\\)\\)\")",
+      "Bash(node -e \"const t = require\\(''three/webgpu''\\); [''MeshBasicNodeMaterial'',''MeshStandardNodeMaterial'',''MeshPhysicalNodeMaterial'',''LineBasicNodeMaterial'',''PointsNodeMaterial'',''WebGPURenderer'',''PostProcessing'',''InstancedMesh'',''SkinnedMesh'',''Skeleton'',''Bone'',''SkeletonHelper''].forEach\\(k => console.log\\(k, k in t ? ''OK'' : ''MISSING''\\)\\)\")",
+      "Bash(ls /c/Users/shane/dev/proj/ai/claude/webgpuclaude/*.html)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(tasklist //FI \"PID eq 17196\")",
+      "Bash(wmic process:*)",
+      "Bash(tasklist //V //FI \"PID eq 17196\")",
+      "Bash(taskkill //PID 17196 //F)",
+      "Bash(taskkill //PID 35540 //F)",
+      "Bash(grep -E \"\\\\.\\(js|d\\\\.ts\\)$\")",
+      "Bash(node:*)",
+      "Bash(ls /c/Users/shane/dev/proj/ai/claude/webgpuclaude/node_modules/three/*.js)",
+      "Bash(head -3 grep export.*select /c/Users/shane/dev/proj/ai/claude/webgpuclaude/node_modules/three/build/three.tsl.js)",
+      "Bash(npx tsc:*)",
+      "Bash(curl:*)",
+      "Skill(update-config)"
+    ]
+  }
+}
