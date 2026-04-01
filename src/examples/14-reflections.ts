@@ -107,7 +107,7 @@ export async function createReflections(container: HTMLDivElement) {
   scene.add(cubeCamera);
 
   const chromeSphere = new THREE.Mesh(
-    new THREE.SphereGeometry(0.65, 64, 48),
+    new THREE.SphereGeometry(0.65, 32, 24),
     new THREE.MeshStandardNodeMaterial({
       metalness: 1.0, roughness: 0.0,
       envMap: cubeCamera.renderTarget.texture,
@@ -123,22 +123,27 @@ export async function createReflections(container: HTMLDivElement) {
   gui.addSlider('Floor metal',  0.95, 0, 1.0, 0.01, v => { (floor.material as any).metalness = v; });
 
   let orbitSpeed = 0.3;
+  let frameCount = 0;
 
   // ── Animate ───────────────────────────────────────────────────────────────
   animate(t => {
+    frameCount++;
+
     // Orbit objects around the centre, staying on the floor
     objects.forEach(({ mesh, r }, i) => {
       const angle = (i / objects.length) * Math.PI * 2 + t * orbitSpeed;
       mesh.position.x = Math.cos(angle) * RING_R;
       mesh.position.z = Math.sin(angle) * RING_R;
-      mesh.position.y = r; // sits on floor
+      mesh.position.y = r;
       mesh.rotation.x = t * (0.5 + i * 0.1);
       mesh.rotation.y = t * (0.3 + i * 0.15);
     });
 
-    // Live reflection update
-    chromeSphere.visible = false;
-    cubeCamera.update(renderer as any, scene);
-    chromeSphere.visible = true;
+    // CubeCamera renders the scene 6× — throttle to every 3rd frame
+    if (frameCount % 3 === 0) {
+      chromeSphere.visible = false;
+      cubeCamera.update(renderer as any, scene);
+      chromeSphere.visible = true;
+    }
   });
 }

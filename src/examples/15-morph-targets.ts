@@ -93,13 +93,13 @@ export async function createMorphTargets(container: HTMLDivElement) {
   scene.add(mesh);
 
   // Dark reflective floor
-  scene.add(Object.assign(
-    new THREE.Mesh(
-      new THREE.PlaneGeometry(14, 14),
-      new THREE.MeshStandardNodeMaterial({ color: 0x050510, roughness: 0.5, metalness: 0.5 })
-    ),
-    { rotation: new THREE.Euler(-Math.PI / 2, 0, 0), position: new THREE.Vector3(0, -1.8, 0) }
-  ));
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(14, 14),
+    new THREE.MeshStandardNodeMaterial({ color: 0x050510, roughness: 0.5, metalness: 0.5 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -1.8;
+  scene.add(floor);
 
   // GUI controls
   let autoPlay = true;

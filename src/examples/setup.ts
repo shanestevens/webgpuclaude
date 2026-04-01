@@ -103,27 +103,42 @@ export async function createScene(container: HTMLDivElement, opts?: {
   const timer = new THREE.Timer();
   let lastTimestamp = 0;
   let fpsFrameN = 0, fpsTs = performance.now();
+  let loopFn: ((ts: number) => void) | null = null;
+  let isVisible = true;
+
+  // Pause the loop when scrolled off-screen, resume when visible again.
+  const visObs = new IntersectionObserver(entries => {
+    isVisible = entries[0].isIntersecting;
+    if (isVisible && loopFn) {
+      renderer.setAnimationLoop(loopFn);
+    } else {
+      renderer.setAnimationLoop(null);
+    }
+  }, { threshold: 0 });
+  visObs.observe(container);
 
   function animate(callback?: (time: number) => boolean | void) {
     // Pre-compile all shaders before the loop to avoid first-frame stalls.
     renderer.compileAsync(scene, camera).then(() => {
-    renderer.setAnimationLoop((timestamp) => {
-      timer.update(timestamp);
-      const t  = timer.getElapsed();
-      const dt = Math.min((timestamp - lastTimestamp) / 1000, 0.1);
-      lastTimestamp = timestamp;
+      loopFn = (timestamp) => {
+        timer.update(timestamp);
+        const t  = timer.getElapsed();
+        const dt = Math.min((timestamp - lastTimestamp) / 1000, 0.1);
+        lastTimestamp = timestamp;
 
-      fpsFrameN++;
-      if (fpsFrameN % 30 === 0) {
-        const now = performance.now();
-        fpsEl.textContent = `${Math.round(30000 / (now - fpsTs))} fps`;
-        fpsTs = now;
-      }
+        fpsFrameN++;
+        if (fpsFrameN % 30 === 0) {
+          const now = performance.now();
+          fpsEl.textContent = `${Math.round(30000 / (now - fpsTs))} fps`;
+          fpsTs = now;
+        }
 
-      camCtrl.update(dt);
-      const handled = callback ? callback(t) : false;
-      if (!handled) renderer.render(scene, camera);
-    });
+        camCtrl.update(dt);
+        const handled = callback ? callback(t) : false;
+        if (!handled) renderer.render(scene, camera);
+      };
+
+      if (isVisible) renderer.setAnimationLoop(loopFn);
     }); // compileAsync
   }
 
