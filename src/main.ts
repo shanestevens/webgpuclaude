@@ -1,3 +1,4 @@
+import * as THREE from 'three/webgpu';
 import { HouseDesigner } from './house-designer/index';
 import { createTriangle } from './examples/01-triangle';
 import { createColoredCube } from './examples/02-colored-cube';
@@ -49,9 +50,104 @@ const examples = [
   { id: '23', title: 'PBR Helmet',      desc: 'Damaged Helmet (CC0) · HDRI image-based lighting', init: createPBRHelmet },
 ];
 
-function main() {
+// ── Version & compatibility checking ────────────────────────────────────────
+
+const APP_VERSION = '1.0.0';
+
+interface GPUCheckResult {
+  supported: boolean;
+  adapterName?: string;
+  reason?: string;
+}
+
+async function checkWebGPU(): Promise<GPUCheckResult> {
   if (!navigator.gpu) {
-    document.getElementById('gpu-warning')!.style.display = 'block';
+    return { supported: false, reason: 'WebGPU API not available in this browser' };
+  }
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) {
+      return { supported: false, reason: 'No GPU adapter found — your GPU may not support WebGPU' };
+    }
+    const info = adapter.info;
+    const parts = [info.vendor, info.architecture, info.device, info.description]
+      .filter(Boolean);
+    return { supported: true, adapterName: parts.join(' · ') || 'Unknown adapter' };
+  } catch (e) {
+    return { supported: false, reason: `GPU adapter request failed: ${(e as Error).message}` };
+  }
+}
+
+function detectBrowser(): { name: string; version: string } {
+  const ua = navigator.userAgent;
+  if (ua.includes('Firefox/'))     return { name: 'Firefox',  version: ua.split('Firefox/')[1]?.split(' ')[0] ?? '' };
+  if (ua.includes('Edg/'))         return { name: 'Edge',     version: ua.split('Edg/')[1]?.split(' ')[0] ?? '' };
+  if (ua.includes('Chrome/'))      return { name: 'Chrome',   version: ua.split('Chrome/')[1]?.split(' ')[0] ?? '' };
+  if (ua.includes('Safari/') && !ua.includes('Chrome'))
+    return { name: 'Safari', version: ua.split('Version/')[1]?.split(' ')[0] ?? '' };
+  return { name: 'Unknown', version: '' };
+}
+
+function showGPUWarning(reason: string) {
+  const el = document.getElementById('gpu-warning')!;
+  const browser = detectBrowser();
+  let hint = '';
+
+  if (browser.name === 'Firefox') {
+    hint = 'Firefox has limited WebGPU support. Try <strong>Chrome 113+</strong> or <strong>Edge 113+</strong>.';
+  } else if (browser.name === 'Safari') {
+    hint = 'Safari WebGPU support is experimental. Try <strong>Chrome 113+</strong> or <strong>Edge 113+</strong>.';
+  } else if (browser.name === 'Chrome' || browser.name === 'Edge') {
+    const ver = parseInt(browser.version, 10);
+    if (ver && ver < 113) {
+      hint = `Your ${browser.name} version (${ver}) is too old. Please update to <strong>${browser.name} 113+</strong>.`;
+    } else {
+      hint = 'WebGPU may be disabled. Check <strong>chrome://flags/#enable-unsafe-webgpu</strong>.';
+    }
+  } else {
+    hint = 'Please use <strong>Chrome 113+</strong> or <strong>Edge 113+</strong> for full WebGPU support.';
+  }
+
+  el.innerHTML = `
+    <strong>WebGPU is not available</strong> — ${reason}
+    <div class="warn-detail">${hint} (Detected: ${browser.name} ${browser.version})</div>
+  `;
+  el.style.display = 'block';
+}
+
+function populateVersionBar(gpuResult: GPUCheckResult) {
+  // App version
+  document.getElementById('ver-app')!.textContent = `v${APP_VERSION}`;
+
+  // Three.js version
+  document.getElementById('ver-three')!.textContent = `r${THREE.REVISION}`;
+
+  // WebGPU status
+  const gpuEl = document.getElementById('ver-gpu')!;
+  if (gpuResult.supported) {
+    gpuEl.textContent = 'Available';
+    gpuEl.className = 'ver-ok';
+  } else {
+    gpuEl.textContent = 'Unavailable';
+    gpuEl.className = 'ver-err';
+  }
+
+  // GPU adapter info
+  if (gpuResult.adapterName) {
+    const chip = document.getElementById('ver-adapter-chip')!;
+    chip.style.display = '';
+    document.getElementById('ver-adapter')!.textContent = gpuResult.adapterName;
+  }
+}
+
+// ── Main ────────────────────────────────────────────────────────────────────
+
+async function main() {
+  const gpuResult = await checkWebGPU();
+  populateVersionBar(gpuResult);
+
+  if (!gpuResult.supported) {
+    showGPUWarning(gpuResult.reason!);
   }
 
   const grid     = document.getElementById('grid')!;
